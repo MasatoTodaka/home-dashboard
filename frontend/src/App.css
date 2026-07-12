@@ -56,11 +56,15 @@
 
 /* Weather */
 .weather-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   text-align: center;
 }
 
 .weather-panel h2 {
   margin-bottom: 24px;
+  text-align: left;
 }
 
 .weather-current {

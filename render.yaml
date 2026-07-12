@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: home-dashboard
+    runtime: node
+    plan: free
+    buildCommand: npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend
+    startCommand: node backend/src/index.js
+    envVars:
+      - key: SWITCHBOT_TOKEN
+        sync: false
+      - key: SWITCHBOT_SECRET
+        sync: false
+      - key: ICLOUD_APPLE_ID
+        sync: false
+      - key: ICLOUD_APP_PASSWORD
+        sync: false
+      - key: ICLOUD_CALENDAR_NAMES
+        sync: false
+      - key: WEATHER_LAT
+        sync: false
+      - key: WEATHER_LON
+        sync: false

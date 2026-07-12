@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { buildSwitchBotHeaders } from '../lib/switchbotAuth.js';
 import { cached } from '../lib/cache.js';
+import { saveWebhookReading, getWebhookReading } from '../lib/webhookCache.js';
 
 const router = Router();
 const BASE_URL = 'https://api.switch-bot.com/v1.1';
@@ -38,9 +39,37 @@ router.get('/devices', async (req, res) => {
       return withStatus;
     });
 
-    res.json(data);
+    // Hub 2/3 はポーリングAPIだと温湿度が0固定で返ることがあるため、
+    // Webhookで受け取った最新の実測値があればそちらで上書きする
+    const merged = data.map((device) => {
+      const reading = getWebhookReading(device.deviceId);
+      if (!reading || !device.status) return device;
+      const { updatedAt, ...fields } = reading;
+      return { ...device, status: { ...device.status, ...fields } };
+    });
+
+    res.json(merged);
   } catch (err) {
     res.status(502).json({ error: err.message });
+  }
+});
+
+// SwitchBotからのWebhook通知 (setupWebhookで登録したURLに届く)
+router.post('/webhook', (req, res) => {
+  res.sendStatus(200); // まず即座に応答する (SwitchBot側の仕様)
+
+  const context = req.body?.context;
+  if (!context?.deviceMac) return;
+
+  const reading = {};
+  if (typeof context.temperature === 'number') reading.temperature = context.temperature;
+  if (typeof context.humidity === 'number') reading.humidity = context.humidity;
+  if (typeof context.lightLevel === 'number') reading.lightLevel = context.lightLevel;
+  if (typeof context.power === 'string') reading.power = context.power;
+  if (typeof context.battery === 'number') reading.battery = context.battery;
+
+  if (Object.keys(reading).length > 0) {
+    saveWebhookReading(context.deviceMac, reading);
   }
 });
 

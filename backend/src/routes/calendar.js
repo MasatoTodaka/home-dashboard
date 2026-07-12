@@ -21,7 +21,11 @@ function getClient() {
       });
       await client.login();
       return client;
-    })();
+    })().catch((err) => {
+      // ログイン失敗をキャッシュし続けると復旧後もずっと失敗するため、次回呼び出しで再試行させる
+      clientPromise = null;
+      throw err;
+    });
   }
   return clientPromise;
 }

@@ -106,10 +106,6 @@ export default function DeviceCard({
       ) : (
         <div className="device-name">{displayName}</div>
       )}
-      <div className="device-type">
-        {device.deviceType}
-        {device.isInfrared ? ' (赤外線)' : ''}
-      </div>
 
       {!device.isInfrared && (
         <div className="device-status">

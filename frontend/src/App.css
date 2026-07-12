@@ -152,6 +152,8 @@
   display: flex;
   align-items: stretch;
   gap: 10px;
+  /* デバイスカードと同じ最低高さに揃える */
+  min-height: 104px;
 }
 
 .event-date-bar {
@@ -193,6 +195,9 @@
   padding: 14px;
   position: relative;
   transition: background 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 104px;
 }
 
 .device-card.on {
@@ -207,7 +212,9 @@
 .ir-buttons {
   display: flex;
   gap: 8px;
-  margin-top: 10px;
+  /* カード下端に固定し、同じ行のカード間でボタンの高さを揃える */
+  margin-top: auto;
+  padding-top: 10px;
 }
 
 .ir-button {

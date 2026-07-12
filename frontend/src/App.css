@@ -117,6 +117,10 @@
 }
 
 /* Calendar */
+.calendar-panel {
+  overflow: hidden;
+}
+
 .event-list {
   list-style: none;
   margin: 0;

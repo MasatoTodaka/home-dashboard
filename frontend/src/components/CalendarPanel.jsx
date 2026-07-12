@@ -21,10 +21,10 @@ export default function CalendarPanel() {
       <h2>予定</h2>
       {error && <p className="error">取得エラー: {error}</p>}
       {!data && !error && <p>読み込み中...</p>}
-      {data && data.length === 0 && <p className="muted">今後7日間の予定はありません</p>}
+      {data && data.length === 0 && <p className="muted">今月の予定はありません</p>}
       {data && data.length > 0 && (
         <ul className="event-list">
-          {data.slice(0, 8).map((event) => (
+          {data.map((event) => (
             <li key={event.id} className="event-item">
               <span className="event-time">{formatEventTime(event)}</span>
               <span className="event-title">{event.title}</span>

@@ -45,7 +45,8 @@ router.get('/', async (req, res) => {
         : calendars;
 
       const now = new Date();
-      const rangeEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      // 当月末までを取得範囲とする
+      const rangeEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
       const objectsByCalendar = await Promise.all(
         targetCalendars.map((calendar) =>

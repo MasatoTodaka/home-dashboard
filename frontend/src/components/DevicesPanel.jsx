@@ -7,6 +7,7 @@ import {
   toggleHidden,
   addCustomButton,
   removeCustomButton,
+  setDisplayName,
   applyOrder,
 } from '../deviceSettings';
 
@@ -149,7 +150,26 @@ function AddButtonArea({ device, onAdd }) {
   );
 }
 
-function DeviceCard({ device, editMode, hidden, customButtons, onToggleHidden, onMoveUp, onMoveDown, canMoveUp, canMoveDown, onAddCustomButton, onRemoveCustomButton }) {
+function DeviceNameField({ displayName, onRename }) {
+  return (
+    <div
+      className="device-name device-name-editable"
+      contentEditable
+      suppressContentEditableWarning
+      onBlur={(e) => onRename(e.currentTarget.textContent)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.currentTarget.blur();
+        }
+      }}
+    >
+      {displayName}
+    </div>
+  );
+}
+
+function DeviceCard({ device, displayName, editMode, hidden, customButtons, onToggleHidden, onMoveUp, onMoveDown, canMoveUp, canMoveDown, onAddCustomButton, onRemoveCustomButton, onRename }) {
   const [pending, setPending] = useState(false);
   const status = device.status;
   const hasPowerToggle = status && (status.power === 'on' || status.power === 'off');
@@ -179,7 +199,11 @@ function DeviceCard({ device, editMode, hidden, customButtons, onToggleHidden, o
           canMoveDown={canMoveDown}
         />
       )}
-      <div className="device-name">{device.deviceName}</div>
+      {editMode ? (
+        <DeviceNameField displayName={displayName} onRename={onRename} />
+      ) : (
+        <div className="device-name">{displayName}</div>
+      )}
       <div className="device-type">
         {device.deviceType}
         {device.isInfrared ? ' (赤外線)' : ''}
@@ -265,6 +289,7 @@ export default function DevicesPanel() {
             <DeviceCard
               key={device.deviceId}
               device={device}
+              displayName={settings.displayNames[device.deviceId] ?? device.deviceName}
               editMode={editMode}
               hidden={settings.hiddenDeviceIds.includes(device.deviceId)}
               customButtons={settings.customButtons[device.deviceId] ?? []}
@@ -275,6 +300,7 @@ export default function DevicesPanel() {
               canMoveDown={i < visibleList.length - 1}
               onAddCustomButton={(btn) => setSettings(addCustomButton(device.deviceId, btn))}
               onRemoveCustomButton={(buttonId) => setSettings(removeCustomButton(device.deviceId, buttonId))}
+              onRename={(name) => setSettings(setDisplayName(device.deviceId, name))}
             />
           ))}
         </div>

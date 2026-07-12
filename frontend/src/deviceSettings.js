@@ -3,15 +3,16 @@ const STORAGE_KEY = 'home-dashboard:device-settings';
 function load() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { hiddenDeviceIds: [], order: [], customButtons: {} };
+    if (!raw) return { hiddenDeviceIds: [], order: [], customButtons: {}, displayNames: {} };
     const parsed = JSON.parse(raw);
     return {
       hiddenDeviceIds: parsed.hiddenDeviceIds ?? [],
       order: parsed.order ?? [],
       customButtons: parsed.customButtons ?? {},
+      displayNames: parsed.displayNames ?? {},
     };
   } catch {
-    return { hiddenDeviceIds: [], order: [], customButtons: {} };
+    return { hiddenDeviceIds: [], order: [], customButtons: {}, displayNames: {} };
   }
 }
 
@@ -61,6 +62,20 @@ export function removeCustomButton(deviceId, buttonId) {
     ...settings,
     customButtons: { ...settings.customButtons, [deviceId]: list },
   };
+  save(next);
+  return next;
+}
+
+// 表示名を変更する。name が空文字の場合は元のデバイス名に戻す
+export function setDisplayName(deviceId, name) {
+  const settings = load();
+  const displayNames = { ...settings.displayNames };
+  if (name.trim()) {
+    displayNames[deviceId] = name;
+  } else {
+    delete displayNames[deviceId];
+  }
+  const next = { ...settings, displayNames };
   save(next);
   return next;
 }

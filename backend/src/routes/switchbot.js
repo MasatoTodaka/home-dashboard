@@ -22,7 +22,7 @@ async function switchbotFetch(path, options = {}) {
 router.get('/devices', async (req, res) => {
   try {
     const data = await cached('switchbot:devices', 60 * 1000, async () => {
-      const { deviceList } = await switchbotFetch('/devices');
+      const { deviceList, infraredRemoteList } = await switchbotFetch('/devices');
 
       const withStatus = await Promise.all(
         deviceList.map(async (device) => {
@@ -36,7 +36,16 @@ router.get('/devices', async (req, res) => {
         })
       );
 
-      return withStatus;
+      // 赤外線リモコン(ハブ経由で学習させた家電)は状態取得APIが存在しないため
+      // status は常に null。deviceType は remoteType から補う
+      const infraredDevices = (infraredRemoteList ?? []).map((device) => ({
+        ...device,
+        deviceType: device.remoteType,
+        isInfrared: true,
+        status: null,
+      }));
+
+      return [...withStatus, ...infraredDevices];
     });
 
     // Hub 2/3 はポーリングAPIだと温湿度が0固定で返ることがあるため、

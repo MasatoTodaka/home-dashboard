@@ -44,8 +44,8 @@ export default function CalendarPanel() {
         <ul className="event-list">
           {data.map((event) => (
             <li key={event.id} className="event-item">
-              <span className="event-time">{formatEventTime(event)}</span>
-              <span className="event-title">{event.title}</span>
+              <span className="event-date-bar">{formatEventTime(event)}</span>
+              <span className="event-title-bar">{event.title}</span>
             </li>
           ))}
         </ul>

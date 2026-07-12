@@ -240,9 +240,15 @@
   border-color: rgba(255, 255, 255, 0.15);
 }
 
-.ir-button.toggle {
-  flex: 0 0 auto;
-  padding: 4px 16px;
+/* 状態が取得できるデバイスで、現在の状態と一致する側のボタンを強調する */
+.ir-button.on.active {
+  background: rgba(255, 214, 102, 0.25);
+  border-color: #ffd666;
+}
+
+.ir-button.off.active {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.45);
 }
 
 .ir-button.custom {

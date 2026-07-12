@@ -2,9 +2,6 @@ import { useState } from 'react';
 import { sendDeviceCommand } from '../../api';
 import AddButtonArea from './CustomButtonForms';
 
-// turnOn が単体で有効なリモコン種別 (エアコンは温度・モード指定の setAll が必要なため対象外)
-const IR_ONOFF_TYPES = ['Light', 'TV', 'IPTV/Streamer', 'Set Top Box', 'DVD', 'Speaker', 'Fan', 'Others'];
-
 function EditControls({ hidden, onToggleHidden, onMoveUp, onMoveDown, canMoveUp, canMoveDown }) {
   return (
     <div className="edit-controls">
@@ -79,7 +76,6 @@ export default function DeviceCard({
   const [pending, setPending] = useState(false);
   const status = device.status;
   const hasPowerToggle = status && (status.power === 'on' || status.power === 'off');
-  const supportsIrOnOff = device.isInfrared && IR_ONOFF_TYPES.includes(device.deviceType);
 
   async function send(command) {
     if (pending) return;
@@ -117,27 +113,30 @@ export default function DeviceCard({
 
       {!device.isInfrared && (
         <div className="device-status">
-          {hasPowerToggle && (
-            <button type="button" className={`ir-button toggle ${status.power}`} disabled={pending} onClick={() => send(status.power === 'on' ? 'turnOff' : 'turnOn')}>
-              {status.power === 'on' ? 'ON' : 'OFF'}
-            </button>
-          )}
           {status?.temperature !== undefined && <span>🌡 {status.temperature}°C</span>}
           {status?.humidity !== undefined && <span>💧 {status.humidity}%</span>}
           {status?.slidePosition !== undefined && <span>開閉 {status.slidePosition}%</span>}
           {status?.battery !== undefined && <span>🔋 {status.battery}%</span>}
-          {!status && <span className="muted">状態なし</span>}
+          {!status && !hasPowerToggle && <span className="muted">状態なし</span>}
         </div>
       )}
 
-      {device.isInfrared && (
+      {(device.isInfrared || hasPowerToggle) && (
         <div className="ir-buttons">
-          {supportsIrOnOff && (
-            <button type="button" className="ir-button on" disabled={pending} onClick={() => send('turnOn')}>
-              ON
-            </button>
-          )}
-          <button type="button" className="ir-button off" disabled={pending} onClick={() => send('turnOff')}>
+          <button
+            type="button"
+            className={`ir-button on ${status?.power === 'on' ? 'active' : ''}`}
+            disabled={pending}
+            onClick={() => send('turnOn')}
+          >
+            ON
+          </button>
+          <button
+            type="button"
+            className={`ir-button off ${status?.power === 'off' ? 'active' : ''}`}
+            disabled={pending}
+            onClick={() => send('turnOff')}
+          >
             OFF
           </button>
         </div>

@@ -4,6 +4,8 @@ SwitchBotデバイスの状態、天気、Appleカレンダーの予定を1画�
 Webアプリ。Fireタブレット + Fully Kiosk Browser (または Chrome) でのキオスク表示を
 想定した、Echo Show 15 / SwitchBotスマートデイリーステーションのようなダッシュボード。
 
+![ダッシュボード画面](docs/screenshot.png)
+
 ## 構成
 
 ```

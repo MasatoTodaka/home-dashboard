@@ -112,7 +112,8 @@ export default function DeviceCard({
           {status?.temperature !== undefined && <span>🌡 {status.temperature}°C</span>}
           {status?.humidity !== undefined && <span>💧 {status.humidity}%</span>}
           {status?.slidePosition !== undefined && <span>開閉 {status.slidePosition}%</span>}
-          {status?.battery !== undefined && <span>🔋 {status.battery}%</span>}
+          {/* このAPIはバッテリー未取得時に0を返すため、0のときは表示しない */}
+          {status?.battery > 0 && <span>🔋 {status.battery}%</span>}
           {!status && !hasPowerToggle && <span className="muted">状態なし</span>}
         </div>
       )}

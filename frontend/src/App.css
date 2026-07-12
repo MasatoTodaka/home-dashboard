@@ -195,17 +195,13 @@
   transition: background 0.15s ease;
 }
 
-.device-card.clickable {
-  cursor: pointer;
-}
-
-.device-card.clickable:active {
-  background: rgba(255, 255, 255, 0.1);
-}
-
 .device-card.on {
   border: 1px solid rgba(255, 214, 102, 0.6);
   background: rgba(255, 214, 102, 0.08);
+}
+
+.device-card.hidden-device {
+  opacity: 0.4;
 }
 
 .ir-buttons {
@@ -244,6 +240,15 @@
   border-color: rgba(255, 255, 255, 0.15);
 }
 
+.ir-button.toggle {
+  flex: 0 0 auto;
+  padding: 4px 16px;
+}
+
+.ir-button.custom {
+  border-color: rgba(100, 181, 246, 0.4);
+}
+
 .device-name {
   font-weight: 600;
   margin-bottom: 2px;
@@ -258,25 +263,143 @@
 .device-status {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
   font-size: 0.9rem;
 }
 
-.badge {
+.devices-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.devices-header h2 {
+  margin: 0;
+}
+
+.edit-toggle-button {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.edit-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.edit-controls button {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
   padding: 2px 8px;
-  border-radius: 999px;
-  font-weight: 700;
+  cursor: pointer;
   font-size: 0.8rem;
 }
 
-.badge.on {
-  background: #ffd666;
-  color: #3a2c00;
+.edit-controls button:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
 
-.badge.off {
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.7);
+.hide-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-left: auto;
+}
+
+.custom-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.custom-button-wrap {
+  position: relative;
+}
+
+.remove-custom {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: #ff6b6b;
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.add-custom-toggle {
+  margin-top: 10px;
+  width: 100%;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  padding: 6px 0;
+  background: transparent;
+  color: inherit;
+  opacity: 0.7;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.custom-button-form {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.custom-button-form input,
+.custom-button-form select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: inherit;
+  font-size: 0.8rem;
+}
+
+.custom-button-form .form-row {
+  display: flex;
+  gap: 8px;
+}
+
+.custom-button-form .form-row label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.custom-button-form button {
+  border: 1px solid rgba(100, 181, 246, 0.5);
+  border-radius: 8px;
+  padding: 6px 0;
+  background: rgba(100, 181, 246, 0.12);
+  color: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
 }
 
 .device-pending {

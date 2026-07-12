@@ -1,7 +1,12 @@
 import { Router } from 'express';
 import { buildSwitchBotHeaders } from '../lib/switchbotAuth.js';
 import { cached } from '../lib/cache.js';
-import { saveWebhookReading, getWebhookReading } from '../lib/webhookCache.js';
+import {
+  saveWebhookReading,
+  getWebhookReading,
+  recordWebhookEvent,
+  getRecentWebhookEvents,
+} from '../lib/webhookCache.js';
 
 const router = Router();
 const BASE_URL = 'https://api.switch-bot.com/v1.1';
@@ -68,6 +73,7 @@ router.post('/webhook', (req, res) => {
   res.sendStatus(200); // まず即座に応答する (SwitchBot側の仕様)
 
   const context = req.body?.context;
+  recordWebhookEvent({ eventType: req.body?.eventType, context });
   if (!context?.deviceMac) return;
 
   const reading = {};
@@ -75,11 +81,18 @@ router.post('/webhook', (req, res) => {
   if (typeof context.humidity === 'number') reading.humidity = context.humidity;
   if (typeof context.lightLevel === 'number') reading.lightLevel = context.lightLevel;
   if (typeof context.power === 'string') reading.power = context.power;
+  // Fan系のWebhookは power ではなく powerState (値は "ON"/"OFF") で届く
+  if (typeof context.powerState === 'string') reading.power = context.powerState.toLowerCase();
   if (typeof context.battery === 'number') reading.battery = context.battery;
 
   if (Object.keys(reading).length > 0) {
     saveWebhookReading(context.deviceMac, reading);
   }
+});
+
+// Webhookの受信履歴を確認する診断用エンドポイント
+router.get('/webhook/recent', (req, res) => {
+  res.json(getRecentWebhookEvents());
 });
 
 // デバイスへのコマンド送信 (例: { "command": "turnOn" })

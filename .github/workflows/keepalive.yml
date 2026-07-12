@@ -1,0 +1,18 @@
+# Render無料プランは約15分アクセスがないとスリープし、スリープ中に届いた
+# SwitchBotのWebhookはタイムアウトで失われる(再送なし)。それを防ぐため
+# 定期的にヘルスチェックを叩いてサービスを起こしておく。
+name: keepalive
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping health endpoint
+        run: |
+          curl -sS -m 60 -o /dev/null -w "HTTP %{http_code}\n" \
+            https://home-dashboard-thkd.onrender.com/api/health

@@ -1,0 +1,36 @@
+:root {
+  --sans: system-ui, 'Segoe UI', Roboto, 'Hiragino Sans', sans-serif;
+  font: 18px/145% var(--sans);
+  color-scheme: dark;
+  color: #f4f4f5;
+  background: #0f172a;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+h1,
+h2 {
+  font-family: var(--sans);
+  font-weight: 600;
+  color: #f4f4f5;
+}
+
+p {
+  margin: 0;
+}

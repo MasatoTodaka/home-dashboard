@@ -133,7 +133,7 @@
 .event-item {
   display: flex;
   gap: 14px;
-  align-items: baseline;
+  align-items: flex-start;
   padding: 10px 14px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
@@ -142,10 +142,9 @@
 .event-time {
   font-weight: 600;
   opacity: 0.8;
-  white-space: nowrap;
   font-size: 0.95rem;
   flex: 0 0 auto;
-  min-width: 13em;
+  width: 8.5em;
 }
 
 .event-title {

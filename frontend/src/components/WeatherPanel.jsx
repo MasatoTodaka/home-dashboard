@@ -14,7 +14,7 @@ export default function WeatherPanel() {
 
   return (
     <div className="panel weather-panel">
-      <h2>天気</h2>
+      <h2>{data?.location ? `${data.location}の天気` : '天気'}</h2>
       {error && <p className="error">取得エラー: {error}</p>}
       {!data && !error && <p>読み込み中...</p>}
       {data && (

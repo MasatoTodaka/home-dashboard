@@ -14,6 +14,20 @@ const WEATHER_CODE_JA = {
   95: '雷雨', 96: '雷雨(雹弱)', 99: '雷雨(雹強)',
 };
 
+async function fetchLocationName(lat, lon) {
+  const url = new URL('https://nominatim.openstreetmap.org/reverse');
+  url.searchParams.set('lat', lat);
+  url.searchParams.set('lon', lon);
+  url.searchParams.set('format', 'jsonv2');
+  url.searchParams.set('accept-language', 'ja');
+
+  const resp = await fetch(url, { headers: { 'User-Agent': 'home-dashboard (personal use)' } });
+  if (!resp.ok) throw new Error(`reverse geocoding error: ${resp.status}`);
+  const json = await resp.json();
+  const addr = json.address ?? {};
+  return addr.city ?? addr.town ?? addr.village ?? addr.county ?? '自宅';
+}
+
 router.get('/', async (req, res) => {
   try {
     const lat = process.env.WEATHER_LAT;
@@ -21,6 +35,11 @@ router.get('/', async (req, res) => {
     if (!lat || !lon) {
       return res.status(500).json({ error: 'WEATHER_LAT / WEATHER_LON is not set' });
     }
+
+    // 地名は変わらないので長め(24時間)にキャッシュする
+    const location = await cached('weather:location', 24 * 60 * 60 * 1000, () => fetchLocationName(lat, lon)).catch(
+      () => null
+    );
 
     const data = await cached('weather', 10 * 60 * 1000, async () => {
       const url = new URL('https://api.open-meteo.com/v1/forecast');
@@ -53,7 +72,7 @@ router.get('/', async (req, res) => {
       };
     });
 
-    res.json(data);
+    res.json({ ...data, location });
   } catch (err) {
     res.status(502).json({ error: err.message });
   }

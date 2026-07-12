@@ -69,11 +69,28 @@ router.get('/devices', async (req, res) => {
 });
 
 // SwitchBotからのWebhook通知 (setupWebhookで登録したURLに届く)
+// bodyはindex.jsでrawのまま受けているため、パース失敗も含めて必ず記録する
 router.post('/webhook', (req, res) => {
   res.sendStatus(200); // まず即座に応答する (SwitchBot側の仕様)
 
-  const context = req.body?.context;
-  recordWebhookEvent({ eventType: req.body?.eventType, context });
+  let body = null;
+  let parseError = null;
+  try {
+    body = JSON.parse(Buffer.isBuffer(req.body) ? req.body.toString('utf8') : req.body);
+  } catch (err) {
+    parseError = err.message;
+  }
+
+  const context = body?.context;
+  recordWebhookEvent({
+    eventType: body?.eventType,
+    context,
+    ...(parseError && {
+      parseError,
+      rawBody: Buffer.isBuffer(req.body) ? req.body.toString('utf8').slice(0, 500) : String(req.body).slice(0, 500),
+      contentType: req.headers['content-type'] ?? null,
+    }),
+  });
   if (!context?.deviceMac) return;
 
   const reading = {};

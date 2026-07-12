@@ -12,6 +12,9 @@ const frontendDist = path.join(__dirname, '../../frontend/dist');
 
 const app = express();
 app.use(cors());
+// Webhookは相手の送信形式(Content-Type欠落や不正JSON)に関わらず必ず受信記録したいので、
+// express.json()より先にrawボディで受けてルート側で自前パースする
+app.use('/api/switchbot/webhook', express.raw({ type: '*/*', limit: '1mb' }));
 app.use(express.json());
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));

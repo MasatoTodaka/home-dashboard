@@ -42,15 +42,15 @@
 }
 
 .clock-time {
-  font-size: 5.5rem;
+  font-size: 8rem;
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
 .clock-date {
-  font-size: 1.4rem;
-  margin-top: 8px;
+  font-size: 1.9rem;
+  margin-top: 12px;
   opacity: 0.75;
 }
 
@@ -58,21 +58,21 @@
 .weather-current {
   display: flex;
   align-items: baseline;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 20px;
+  margin-bottom: 24px;
 }
 
 .weather-temp {
-  font-size: 3rem;
+  font-size: 4.2rem;
   font-weight: 700;
 }
 
 .weather-text {
-  font-size: 1.3rem;
+  font-size: 1.7rem;
 }
 
 .weather-humidity {
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   opacity: 0.7;
 }
 
@@ -85,19 +85,20 @@
   flex: 1;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 14px;
-  padding: 12px;
+  padding: 14px;
   text-align: center;
 }
 
 .weather-day-label {
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  font-size: 1.15rem;
 }
 
 .weather-day-text {
   opacity: 0.8;
-  font-size: 0.95rem;
-  margin-bottom: 6px;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
 }
 
 .temp-max {
@@ -110,10 +111,14 @@
   font-weight: 600;
 }
 
+.weather-day-temp {
+  font-size: 1.15rem;
+}
+
 .weather-day-pop {
-  font-size: 0.85rem;
+  font-size: 1rem;
   opacity: 0.7;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 /* Calendar */

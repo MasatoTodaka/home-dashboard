@@ -144,6 +144,8 @@
   opacity: 0.8;
   white-space: nowrap;
   font-size: 0.95rem;
+  flex: 0 0 auto;
+  min-width: 13em;
 }
 
 .event-title {

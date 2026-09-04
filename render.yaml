@@ -20,3 +20,17 @@ services:
         sync: false
       - key: WEATHER_LON
         sync: false
+      - key: EUFY_EMAIL
+        sync: false
+      - key: EUFY_PASSWORD
+        sync: false
+      - key: GOOGLE_SHEETS_SPREADSHEET_ID
+        sync: false
+      - key: GOOGLE_SHEETS_SHEET_NAME
+        sync: false
+      - key: GOOGLE_SERVICE_ACCOUNT_EMAIL
+        sync: false
+      - key: GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
+        sync: false
+      - key: SYNC_SECRET
+        sync: false

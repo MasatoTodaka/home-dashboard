@@ -1,0 +1,19 @@
+# Eufyスマート体重計の測定データを定期的にGoogle Sheetsへ同期する。
+# バックエンド側は5分キャッシュ・重複チェックを行うので、間隔はkeepaliveより広めでよい。
+name: eufy-sync
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Eufy -> Google Sheets sync
+        run: |
+          curl -sS -m 60 -o /dev/null -w "HTTP %{http_code}\n" \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.EUFY_SYNC_SECRET }}" \
+            https://home-dashboard-thkd.onrender.com/api/eufy/sync

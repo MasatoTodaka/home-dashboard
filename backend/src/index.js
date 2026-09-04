@@ -6,6 +6,7 @@ import cors from 'cors';
 import weatherRouter from './routes/weather.js';
 import switchbotRouter from './routes/switchbot.js';
 import calendarRouter from './routes/calendar.js';
+import eufyRouter from './routes/eufy.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const frontendDist = path.join(__dirname, '../../frontend/dist');
@@ -21,6 +22,7 @@ app.get('/api/health', (req, res) => res.json({ ok: true }));
 app.use('/api/weather', weatherRouter);
 app.use('/api/switchbot', switchbotRouter);
 app.use('/api/calendar', calendarRouter);
+app.use('/api/eufy', eufyRouter);
 
 // 本番運用ではフロントエンドのビルド成果物も同じサーバーから配信し、
 // CORSやAPIベースURLの設定なしで単一サービスとしてデプロイできるようにする

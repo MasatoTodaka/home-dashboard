@@ -33,9 +33,9 @@ router.post('/sync', async (req, res) => {
     const measurements = await getAllMeasurements();
     const existingKeys = await getExistingKeys(spreadsheetId, sheetName);
 
-    const newRows = measurements.filter((m) => !existingKeys.has(`${m.customerId}:${m.updatedAt}`));
+    const newRows = measurements.filter((m) => !existingKeys.has(`${m.customerId}:${m.measuredAt}`));
     const rows = newRows.map((m) => [
-      m.updatedAt,
+      m.measuredAt,
       m.customerId,
       m.weight,
       m.bodyFat,

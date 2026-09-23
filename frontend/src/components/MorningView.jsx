@@ -3,36 +3,69 @@ import { usePolling } from '../usePolling';
 import { garbageStyle, upcomingGarbageDays } from '../garbage';
 import { MORNING_SETTINGS, formatRainSpans, isRainHour, judgeBike, rainSpans } from '../morning';
 import Clock from './Clock';
+import { BikeIcon, WeatherIcon, WindIcon } from './icons';
 
+// バイク判定は文字で主張せず、アイコンの色だけで伝える (読み上げ用に aria-label は付ける)
 const BIKE_LABELS = {
-  ok: { icon: '◎', text: 'バイクで行ける' },
-  caution: { icon: '△', text: 'バイクは注意' },
-  ng: { icon: '×', text: 'バイクはやめておこう' },
+  ok: 'バイクで行ける',
+  caution: 'バイクは注意',
+  ng: 'バイクはやめておこう',
 };
 
+// 出かける・帰る時間帯の気温を並べる (服装を決める目安)
+const TIME_SLOTS = [7, 12, 18];
+
 function BikeCard({ weather, now }) {
-  const judgement = weather?.hourly ? judgeBike(weather.hourly, now) : null;
+  const today = weather?.daily?.[0];
+  const hourly = weather?.hourly ?? [];
+  const judgement = hourly.length ? judgeBike(hourly, now) : null;
+  const { outingStartHour, outingEndHour } = MORNING_SETTINGS;
+  const outingHours = hourly.filter((h) => h.hour >= outingStartHour && h.hour <= outingEndHour);
+  const maxWind = outingHours.length ? Math.max(...outingHours.map((h) => h.windSpeed)) : null;
 
   return (
     <div className="panel morning-bike">
-      <h2>バイク</h2>
-      {!judgement && <p className="muted">読み込み中...</p>}
-      {judgement && (
+      <h2>今日の天気</h2>
+      {!today && <p className="muted">読み込み中...</p>}
+      {today && (
         <>
-          <div className={`bike-verdict ${judgement.level}`}>
-            <span className="bike-verdict-icon">{BIKE_LABELS[judgement.level].icon}</span>
-            <span>{BIKE_LABELS[judgement.level].text}</span>
+          <div className="morning-bike-body">
+            <WeatherIcon code={today.weatherCode} className="morning-weather-icon" />
+            <div className="morning-weather">
+              <div className="morning-weather-text">{today.weatherText}</div>
+              <div className="morning-weather-temp">
+                <span className="temp-max">{Math.round(today.tempMax)}°</span>
+                <span className="morning-weather-sep"> / </span>
+                <span className="temp-min">{Math.round(today.tempMin)}°</span>
+              </div>
+            </div>
+            {judgement && (
+              <BikeIcon className={`bike-icon ${judgement.level}`} label={BIKE_LABELS[judgement.level]} />
+            )}
           </div>
-          <ul className="bike-reasons">
-            {judgement.reasons.map((r) => (
-              <li key={r.text} className={r.level}>
-                {r.text}
-              </li>
-            ))}
-          </ul>
-          <p className="muted bike-range">
-            {judgement.fromHour}時〜{judgement.toHour}時の予報で判定
-          </p>
+          <div className="morning-slots">
+            {TIME_SLOTS.map((hour) => {
+              const h = hourly.find((x) => x.hour === hour);
+              if (!h) return null;
+              return (
+                <div key={hour} className="morning-slot">
+                  <span className="morning-slot-label">{hour}時</span>
+                  <WeatherIcon code={h.weatherCode} className="morning-slot-icon" />
+                  <span className="morning-slot-value">{Math.round(h.temperature)}°</span>
+                </div>
+              );
+            })}
+            {maxWind !== null && (
+              <div className="morning-slot">
+                <span className="morning-slot-label">風</span>
+                <WindIcon className="morning-slot-icon" />
+                <span className="morning-slot-value">
+                  {Math.round(maxWind)}
+                  <small>m/s</small>
+                </span>
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>

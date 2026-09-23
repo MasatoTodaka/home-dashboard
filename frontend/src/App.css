@@ -510,73 +510,111 @@
 .morning-bike {
   display: flex;
   flex-direction: column;
+  padding-bottom: 18px;
 }
 
-.bike-verdict {
+.morning-bike h2 {
+  margin-bottom: 4px;
+}
+
+.morning-bike-body {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 16px;
-  font-size: 2.6rem;
-  font-weight: 700;
+  gap: 20px;
 }
 
-.bike-verdict-icon {
-  display: inline-flex;
+.morning-weather-icon {
+  flex: 0 0 auto;
+  width: 76px;
+  height: 76px;
+}
+
+.weather-icon {
+  fill: #c7d2e0;
+}
+
+.morning-weather {
+  flex: 1;
+  min-width: 0;
+}
+
+.morning-weather-text {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.morning-weather-temp {
+  margin-top: 2px;
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.morning-weather-sep {
+  opacity: 0.5;
+}
+
+.morning-slots {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.morning-slot {
+  flex: 1;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.4em;
-  height: 1.4em;
-  border-radius: 50%;
-  color: #0f172a;
-}
-
-.bike-verdict.ok .bike-verdict-icon {
-  background: #7ddc8a;
-}
-
-.bike-verdict.caution .bike-verdict-icon {
-  background: #ffc857;
-}
-
-.bike-verdict.ng .bike-verdict-icon {
-  background: #ff6b6b;
-}
-
-.bike-reasons {
-  list-style: none;
-  margin: 16px 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
   gap: 6px;
-  font-size: 1.15rem;
+  padding: 6px;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
-.bike-reasons li::before {
-  content: '';
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  margin-right: 10px;
-  border-radius: 50%;
-  vertical-align: middle;
-}
-
-.bike-reasons li.ok::before {
-  background: #7ddc8a;
-}
-
-.bike-reasons li.caution::before {
-  background: #ffc857;
-}
-
-.bike-reasons li.ng::before {
-  background: #ff6b6b;
-}
-
-.bike-range {
-  margin: auto 0 0;
+.morning-slot-label {
   font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.morning-slot-icon {
+  width: 22px;
+  height: 22px;
+  fill: #c7d2e0;
+}
+
+.morning-slot-value {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.morning-slot-value small {
+  margin-left: 2px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+.bike-icon {
+  flex: 0 0 auto;
+  width: 108px;
+  height: 108px;
+  margin-right: 28px;
+}
+
+.bike-icon.ok {
+  fill: #7ddc8a;
+}
+
+.bike-icon.caution {
+  fill: #ffc857;
+}
+
+.bike-icon.ng {
+  fill: #ff6b6b;
 }
 
 .morning-rain {

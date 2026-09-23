@@ -6,6 +6,7 @@ import DevicesPanel from './components/DevicesPanel';
 import MorningView from './components/MorningView';
 import { isMorningTime } from './morning';
 import { useWakeLock } from './useWakeLock';
+import { useFullyBrightness } from './useFullyBrightness';
 import './App.css';
 
 // URLに ?mode=morning / ?mode=normal を付けると時刻に関係なくそのモードで表示する (確認用)
@@ -29,6 +30,9 @@ function App() {
   const morning = FORCED_MODE
     ? FORCED_MODE === 'morning'
     : isMorningTime(now) && dismissedOn !== dateKey(now);
+
+  // 明るさは「通常表示へ」で朝モードを閉じても、朝の時間帯は最大のままにする
+  useFullyBrightness(FORCED_MODE ? FORCED_MODE === 'morning' : isMorningTime(now));
 
   if (morning) {
     return <MorningView now={now} onDismiss={() => setDismissedOn(dateKey(now))} />;

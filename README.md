@@ -17,7 +17,8 @@ home-dashboard/
 本番では `backend` が `frontend/dist` の静的ファイルも配信するため、デプロイ先は
 1サービスだけで済みます (CORSやAPIベースURLの設定が不要)。
 
-- 天気: [Open-Meteo](https://open-meteo.com/) — APIキー不要
+- 天気: [Open-Meteo](https://open-meteo.com/) — APIキー不要。Renderの共有IPだとレート制限(429)に掛かるため、
+  予報はブラウザから直接取得し、バックエンドは自宅の座標と地名だけを返す
 - SwitchBot: [SwitchBot OpenAPI v1.1](https://github.com/OpenWonderLabs/SwitchBotAPI) — トークン+シークレットでHMAC署名認証
 - カレンダー: Apple iCloud カレンダーをCalDAV経由で参照 (アプリ用パスワードを使用)
 - ごみ収集日: [一宮市公式サイトの地区別収集日ページ](https://www.city.ichinomiya.aichi.jp/kankyou/shuushuugyoumu/1043991/1043992/index.html)
@@ -106,6 +107,17 @@ Fully Kiosk Browserの「画面を常時オン」「キオスクモード」「�
 Chromeで表示する場合も、ダッシュボードが Screen Wake Lock API で画面の減光・スリープを止めるため、
 開いている間は画面が点いたままになります (HTTPSで開いている必要あり。Renderのデプロイ先URLならOK)。
 それでも暗くなる場合は、Fire側の「明るさの自動調整」「ブルーシェード」「省電力モード」を確認してください。
+
+### Fully Kiosk Browser で画面の明るさを自動調整する
+
+Fully Kiosk Browser で開き、「Advanced Web Settings → Enable JavaScript Interface (PLUS)」を有効にすると、
+タブレット本体の照度センサー (無い機種では SwitchBot ハブ2の照度) に合わせて画面の明るさを変えます
+(暗い部屋で最小、明るい部屋で最大。対応づけは `frontend/src/useFullyBrightness.js` 先頭の定数で調整)。
+朝モードの時間帯 (6:00〜7:30) は部屋の明るさに関係なく最大になります。Chromeで開いた場合は何もしません。
+あわせて「Device Management → Keep Screen On」も有効にしてください。
+
+Fire OS 5 (Android 5.1相当) の機種には最新版はインストールできない (解析エラーになる) ため、
+Android 5 対応の最終版 [1.59.2](https://www.fully-kiosk.com/files/2025/10/Fully-Kiosk-Browser-v1.59.2.apk) を使います。
 
 ## 朝モード
 

@@ -5,6 +5,7 @@ import CalendarPanel from './components/CalendarPanel';
 import DevicesPanel from './components/DevicesPanel';
 import MorningView from './components/MorningView';
 import { isMorningTime } from './morning';
+import { useWakeLock } from './useWakeLock';
 import './App.css';
 
 // URLに ?mode=morning / ?mode=normal を付けると時刻に関係なくそのモードで表示する (確認用)
@@ -15,6 +16,7 @@ function dateKey(d) {
 }
 
 function App() {
+  useWakeLock();
   const [now, setNow] = useState(new Date());
   // 「通常表示へ」を押した日は、その日の朝モードを出さない
   const [dismissedOn, setDismissedOn] = useState(null);

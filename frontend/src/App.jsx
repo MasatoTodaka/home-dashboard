@@ -4,13 +4,17 @@ import WeatherPanel from './components/WeatherPanel';
 import CalendarPanel from './components/CalendarPanel';
 import DevicesPanel from './components/DevicesPanel';
 import MorningView from './components/MorningView';
+import BrightnessDebug from './components/BrightnessDebug';
 import { isMorningTime } from './morning';
 import { useWakeLock } from './useWakeLock';
 import { useFullyBrightness } from './useFullyBrightness';
 import './App.css';
 
 // URLに ?mode=morning / ?mode=normal を付けると時刻に関係なくそのモードで表示する (確認用)
-const FORCED_MODE = new URLSearchParams(window.location.search).get('mode');
+const PARAMS = new URLSearchParams(window.location.search);
+const FORCED_MODE = PARAMS.get('mode');
+// ?debug=brightness で明るさ自動調整の確認用表示を出す
+const SHOW_BRIGHTNESS_DEBUG = PARAMS.get('debug') === 'brightness';
 
 function dateKey(d) {
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
@@ -34,21 +38,31 @@ function App() {
   // 明るさは「通常表示へ」で朝モードを閉じても、朝の時間帯は最大のままにする
   useFullyBrightness(FORCED_MODE ? FORCED_MODE === 'morning' : isMorningTime(now));
 
+  const debug = SHOW_BRIGHTNESS_DEBUG && <BrightnessDebug />;
+
   if (morning) {
-    return <MorningView now={now} onDismiss={() => setDismissedOn(dateKey(now))} />;
+    return (
+      <>
+        <MorningView now={now} onDismiss={() => setDismissedOn(dateKey(now))} />
+        {debug}
+      </>
+    );
   }
 
   return (
-    <div className="dashboard">
-      <div className="dashboard-top">
-        <Clock />
-        <WeatherPanel />
+    <>
+      <div className="dashboard">
+        <div className="dashboard-top">
+          <Clock />
+          <WeatherPanel />
+        </div>
+        <div className="dashboard-bottom">
+          <CalendarPanel />
+          <DevicesPanel />
+        </div>
       </div>
-      <div className="dashboard-bottom">
-        <CalendarPanel />
-        <DevicesPanel />
-      </div>
-    </div>
+      {debug}
+    </>
   );
 }
 

@@ -701,3 +701,50 @@
   opacity: 0.8;
   font-variant-numeric: tabular-nums;
 }
+
+/* 明るさ自動調整の確認用表示 (?debug=brightness) */
+.brightness-debug {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 10;
+  max-width: 460px;
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.brightness-debug th {
+  padding-right: 12px;
+  text-align: left;
+  font-weight: 500;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.brightness-debug pre {
+  margin: 4px 0 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.brightness-debug-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.brightness-debug-buttons button {
+  flex: 1;
+  padding: 6px 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  font-size: 0.8rem;
+}

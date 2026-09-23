@@ -1,13 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { fetchDevices } from './api';
-import { usePolling } from './usePolling';
 
 // Fully Kiosk Browser の JavaScript Interface (PLUS) が有効なときだけ window.fully が存在する。
 // Chrome 等で開いた場合は何もしない
 const fully = typeof window !== 'undefined' ? window.fully : undefined;
-const canSetBrightness = typeof fully?.setScreenBrightness === 'function';
-// 本体の照度センサーを読めるならそれを使い、読めなければ SwitchBot ハブ2の照度で代用する
-const hasTabletSensor = canSetBrightness && typeof fully?.getSensorValue === 'function';
+export const canSetBrightness = typeof fully?.setScreenBrightness === 'function';
+const hasSensorApi = canSetBrightness && typeof fully?.getSensorValue === 'function';
 
 // 画面の明るさの範囲 (Fully は 0〜255)
 const BRIGHTNESS_MIN = 0;
@@ -18,15 +16,30 @@ const SENSOR_TYPE_LIGHT = 5;
 const LUX_DARK = 1; // これ以下は最小
 const LUX_BRIGHT = 300; // これ以上は最大 (照明を点けた室内がおおよそ100〜300lux)
 const SENSOR_INTERVAL_MS = 5 * 1000;
+// 起動してからこの回数続けてセンサー値が読めなければ、本体センサーは使えないとみなしてハブ2に切り替える
+const SENSOR_GIVE_UP_READS = 6;
 // ちらつき防止: 読み取り値をならし、この段階数以上変わったときだけ明るさを変える
 const SMOOTHING = 0.3;
 const MIN_STEP = 8;
 // OS側で明るさを変えられても戻せるよう、変化がなくてもこの間隔で設定し直す
 const REAPPLY_MS = 60 * 1000;
 
-// ハブ2の照度 (1〜20)
+// ハブ2の照度 (1〜20)。クラウド経由なので1分ごとに取得する
 const HUB_LIGHT_MIN = 1;
 const HUB_LIGHT_MAX = 20;
+const HUB_INTERVAL_MS = 60 * 1000;
+
+// 確認用表示 (?debug=brightness) が読む現在の状態
+export const brightnessDiagnostics = {
+  source: null, // 'tablet' | 'hub'
+  rawSensorValue: null,
+  smoothedLux: null,
+  invalidReads: 0,
+  hubLightLevel: null,
+  lastLevel: null,
+  lastAppliedAt: null,
+  lastError: null,
+};
 
 function clamp01(x) {
   return Math.min(Math.max(x, 0), 1);
@@ -48,9 +61,12 @@ function brightnessForHubLevel(level) {
 
 function readTabletLux() {
   try {
-    const lux = Number(fully.getSensorValue(SENSOR_TYPE_LIGHT));
+    const raw = fully.getSensorValue(SENSOR_TYPE_LIGHT);
+    brightnessDiagnostics.rawSensorValue = raw;
+    const lux = Number(raw);
     return Number.isFinite(lux) && lux >= 0 ? lux : null;
-  } catch {
+  } catch (err) {
+    brightnessDiagnostics.lastError = `getSensorValue: ${err.message ?? err}`;
     return null;
   }
 }
@@ -60,29 +76,46 @@ function hub2LightLevel(devices) {
   return typeof level === 'number' ? level : null;
 }
 
-function setBrightness(level) {
+export function setBrightness(level) {
   try {
     fully.setScreenBrightness(level);
+    brightnessDiagnostics.lastLevel = level;
+    brightnessDiagnostics.lastAppliedAt = new Date();
   } catch (err) {
+    brightnessDiagnostics.lastError = `setScreenBrightness: ${err.message ?? err}`;
     console.warn('画面の明るさを変更できませんでした:', err);
   }
 }
 
-// 部屋の明るさに合わせて画面の明るさを変える。朝モード中は部屋の明るさに関係なく最大
+// 部屋の明るさに合わせて画面の明るさを変える。朝モード中は部屋の明るさに関係なく最大。
+// 本体の照度センサーを優先し、読めなければ SwitchBot ハブ2の照度に切り替える
 export function useFullyBrightness(morning) {
-  // 本体センサー: 数秒ごとに読んで反映する
+  const [source, setSource] = useState(hasSensorApi ? 'tablet' : canSetBrightness ? 'hub' : null);
+  brightnessDiagnostics.source = source;
+
   const smoothedLux = useRef(null);
+  const invalidReads = useRef(0);
   const last = useRef({ level: null, at: 0 });
 
   useEffect(() => {
-    if (!hasTabletSensor) return undefined;
+    if (source !== 'tablet') return undefined;
 
     function tick() {
       const lux = readTabletLux();
-      if (lux !== null) {
+      if (lux === null) {
+        invalidReads.current += 1;
+        brightnessDiagnostics.invalidReads = invalidReads.current;
+        // 一度も読めないまま規定回数に達したら、このセンサーは使えないとみなす
+        if (smoothedLux.current === null && invalidReads.current >= SENSOR_GIVE_UP_READS) {
+          setSource('hub');
+          return;
+        }
+      } else {
         smoothedLux.current =
           smoothedLux.current === null ? lux : smoothedLux.current + SMOOTHING * (lux - smoothedLux.current);
+        brightnessDiagnostics.smoothedLux = smoothedLux.current;
       }
+
       // センサー値がまだ取れないうちは明るさを変えない (朝モードは値に関係なく最大)
       let level = null;
       if (morning) level = BRIGHTNESS_MAX;
@@ -102,19 +135,30 @@ export function useFullyBrightness(morning) {
     tick();
     const id = setInterval(tick, SENSOR_INTERVAL_MS);
     return () => clearInterval(id);
-  }, [morning]);
+  }, [source, morning]);
 
-  // ハブ2 (本体センサーが使えない場合のみ): クラウドから1分ごとに取得して反映する
-  const { data: devices } = usePolling(
-    () => (canSetBrightness && !hasTabletSensor ? fetchDevices() : Promise.resolve(null)),
-    60 * 1000
-  );
-  const hubLevel = hub2LightLevel(devices);
-
-  // devices を依存に入れ、値が同じでも取得のたびに設定し直す (OS側で明るさが変えられても戻すため)
+  // 値が同じでも取得のたびに設定し直す (OS側で明るさが変えられても戻すため)
   useEffect(() => {
-    if (!canSetBrightness || hasTabletSensor) return;
-    const level = morning ? BRIGHTNESS_MAX : hubLevel === null ? null : brightnessForHubLevel(hubLevel);
-    if (level !== null) setBrightness(level);
-  }, [morning, hubLevel, devices]);
+    if (source !== 'hub') return undefined;
+    let cancelled = false;
+
+    async function run() {
+      try {
+        const level = hub2LightLevel(await fetchDevices());
+        if (cancelled) return;
+        brightnessDiagnostics.hubLightLevel = level;
+        if (morning) setBrightness(BRIGHTNESS_MAX);
+        else if (level !== null) setBrightness(brightnessForHubLevel(level));
+      } catch (err) {
+        brightnessDiagnostics.lastError = `ハブ2の取得: ${err.message ?? err}`;
+      }
+    }
+
+    run();
+    const id = setInterval(run, HUB_INTERVAL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [source, morning]);
 }

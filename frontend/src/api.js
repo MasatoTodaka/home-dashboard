@@ -16,7 +16,8 @@ async function post(path, body) {
   return json;
 }
 
-export const fetchWeather = () => get('/weather');
+// 天気はバックエンド経由ではなくブラウザから直接取得する (理由は weather.js)
+export { fetchWeather } from './weather';
 export const fetchCalendarEvents = () => get('/calendar');
 export const fetchGarbage = () => get('/garbage');
 export const fetchDevices = () => get('/switchbot/devices');

@@ -1,10 +1,37 @@
+import { useEffect, useState } from 'react';
 import Clock from './components/Clock';
 import WeatherPanel from './components/WeatherPanel';
 import CalendarPanel from './components/CalendarPanel';
 import DevicesPanel from './components/DevicesPanel';
+import MorningView from './components/MorningView';
+import { isMorningTime } from './morning';
 import './App.css';
 
+// URLに ?mode=morning / ?mode=normal を付けると時刻に関係なくそのモードで表示する (確認用)
+const FORCED_MODE = new URLSearchParams(window.location.search).get('mode');
+
+function dateKey(d) {
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+
 function App() {
+  const [now, setNow] = useState(new Date());
+  // 「通常表示へ」を押した日は、その日の朝モードを出さない
+  const [dismissedOn, setDismissedOn] = useState(null);
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 30 * 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const morning = FORCED_MODE
+    ? FORCED_MODE === 'morning'
+    : isMorningTime(now) && dismissedOn !== dateKey(now);
+
+  if (morning) {
+    return <MorningView now={now} onDismiss={() => setDismissedOn(dateKey(now))} />;
+  }
+
   return (
     <div className="dashboard">
       <div className="dashboard-top">

@@ -47,6 +47,12 @@ router.get('/', async (req, res) => {
       url.searchParams.set('longitude', lon);
       url.searchParams.set('current', 'temperature_2m,relative_humidity_2m,weather_code');
       url.searchParams.set('daily', 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max');
+      // 朝モードの雨の時間帯・バイク判定用
+      url.searchParams.set(
+        'hourly',
+        'temperature_2m,precipitation_probability,precipitation,weather_code,wind_speed_10m,wind_gusts_10m'
+      );
+      url.searchParams.set('wind_speed_unit', 'ms');
       url.searchParams.set('timezone', 'Asia/Tokyo');
       url.searchParams.set('forecast_days', '3');
 
@@ -69,6 +75,19 @@ router.get('/', async (req, res) => {
           tempMin: json.daily.temperature_2m_min[i],
           precipitationProbability: json.daily.precipitation_probability_max[i],
         })),
+        // 今日の分だけ返す (時刻は Asia/Tokyo の "YYYY-MM-DDTHH:00")
+        hourly: json.hourly.time
+          .map((time, i) => ({
+            time,
+            hour: Number(time.slice(11, 13)),
+            temperature: json.hourly.temperature_2m[i],
+            precipitationProbability: json.hourly.precipitation_probability[i],
+            precipitation: json.hourly.precipitation[i],
+            weatherCode: json.hourly.weather_code[i],
+            windSpeed: json.hourly.wind_speed_10m[i],
+            windGusts: json.hourly.wind_gusts_10m[i],
+          }))
+          .filter((h) => h.time.startsWith(json.daily.time[0])),
       };
     });
 

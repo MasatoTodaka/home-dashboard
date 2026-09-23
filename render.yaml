@@ -34,3 +34,7 @@ services:
         sync: false
       - key: SYNC_SECRET
         sync: false
+      - key: ICHINOMIYA_GOMI_RENKU
+        sync: false
+      - key: ICHINOMIYA_GOMI_AREA
+        sync: false

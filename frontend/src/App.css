@@ -180,6 +180,50 @@
   min-width: 0;
 }
 
+.garbage-item .event-date-bar {
+  flex-direction: column;
+}
+
+.garbage-deadline {
+  font-size: 0.8rem;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.garbage-title {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.garbage-chip {
+  padding: 2px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  border: 1px solid currentColor;
+}
+
+.garbage-chip.burnable {
+  color: #ff9f6b;
+}
+
+.garbage-chip.plastic {
+  color: #6bb8ff;
+}
+
+.garbage-chip.nonburnable,
+.garbage-chip.metal,
+.garbage-chip.other {
+  color: #c7c7d1;
+}
+
+.garbage-chip.pet {
+  color: #5fd6c4;
+}
+
+.garbage-chip.resource {
+  color: #9bdc6b;
+}
+
 /* Devices */
 .device-grid {
   display: grid;
@@ -433,4 +477,227 @@
 
 .error {
   color: #ff6b6b;
+}
+
+/* Morning mode */
+.dashboard.morning {
+  position: relative;
+}
+
+.morning .dashboard-top,
+.morning .dashboard-bottom {
+  flex: 1 1 0;
+}
+
+.morning .clock-time {
+  font-size: 7rem;
+}
+
+.morning-dismiss {
+  position: absolute;
+  top: 32px;
+  right: 32px;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.morning-bike {
+  display: flex;
+  flex-direction: column;
+}
+
+.bike-verdict {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 2.6rem;
+  font-weight: 700;
+}
+
+.bike-verdict-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4em;
+  height: 1.4em;
+  border-radius: 50%;
+  color: #0f172a;
+}
+
+.bike-verdict.ok .bike-verdict-icon {
+  background: #7ddc8a;
+}
+
+.bike-verdict.caution .bike-verdict-icon {
+  background: #ffc857;
+}
+
+.bike-verdict.ng .bike-verdict-icon {
+  background: #ff6b6b;
+}
+
+.bike-reasons {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 1.15rem;
+}
+
+.bike-reasons li::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 10px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.bike-reasons li.ok::before {
+  background: #7ddc8a;
+}
+
+.bike-reasons li.caution::before {
+  background: #ffc857;
+}
+
+.bike-reasons li.ng::before {
+  background: #ff6b6b;
+}
+
+.bike-range {
+  margin: auto 0 0;
+  font-size: 0.85rem;
+}
+
+.morning-rain {
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.morning-rain-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.morning-rain-header h2 {
+  margin-bottom: 8px;
+}
+
+.morning-rain-summary {
+  font-size: 1.15rem;
+}
+
+.rain-chart {
+  display: flex;
+  gap: 2px;
+  padding-top: 20px;
+}
+
+.rain-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rain-col.past {
+  opacity: 0.35;
+}
+
+.rain-bar-area {
+  position: relative;
+  width: 100%;
+  height: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.rain-bar {
+  width: 24px;
+  max-width: 100%;
+  border-radius: 4px 4px 0 0;
+  background: rgba(107, 184, 255, 0.4);
+}
+
+.rain-bar.rainy {
+  background: #6bb8ff;
+}
+
+.rain-peak-label {
+  position: absolute;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.rain-hour {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
+
+.rain-hour.now {
+  opacity: 1;
+  font-weight: 700;
+}
+
+.morning-garbage-when {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.morning-garbage-when .muted {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.morning-garbage-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.morning-garbage-items .garbage-chip {
+  font-size: 1.8rem;
+  padding: 6px 22px;
+}
+
+.morning-big-text {
+  font-size: 1.6rem;
+}
+
+.morning-event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 1.3rem;
+}
+
+.morning-event-list li {
+  display: flex;
+  gap: 16px;
+}
+
+.morning-event-time {
+  flex: 0 0 3.5em;
+  font-weight: 600;
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
 }

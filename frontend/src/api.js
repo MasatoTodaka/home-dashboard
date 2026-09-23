@@ -18,6 +18,7 @@ async function post(path, body) {
 
 export const fetchWeather = () => get('/weather');
 export const fetchCalendarEvents = () => get('/calendar');
+export const fetchGarbage = () => get('/garbage');
 export const fetchDevices = () => get('/switchbot/devices');
 export const sendDeviceCommand = (deviceId, command, parameter = 'default') =>
   post(`/switchbot/devices/${deviceId}/commands`, { command, parameter });

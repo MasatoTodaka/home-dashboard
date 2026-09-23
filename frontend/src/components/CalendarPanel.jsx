@@ -1,5 +1,6 @@
-import { fetchCalendarEvents } from '../api';
+import { fetchCalendarEvents, fetchGarbage } from '../api';
 import { usePolling } from '../usePolling';
+import { garbageStyle, upcomingGarbageDays } from '../garbage';
 
 const WEEKDAYS_JA = ['日', '月', '火', '水', '木', '金', '土'];
 
@@ -31,23 +32,56 @@ function formatEventTime(event) {
     : `${formatDate(start)} ${formatTime(start)}`;
 }
 
+function GarbageRow({ day, deadline }) {
+  return (
+    <li className="event-item garbage-item">
+      <span className="event-date-bar">
+        <span>{formatDate(day.start)}</span>
+        {deadline && <span className="garbage-deadline">{deadline}まで</span>}
+      </span>
+      <span className="event-title-bar garbage-title">
+        {day.items.map((name) => {
+          const { label, className } = garbageStyle(name);
+          return (
+            <span key={name} className={`garbage-chip ${className}`}>
+              {label}
+            </span>
+          );
+        })}
+      </span>
+    </li>
+  );
+}
+
 export default function CalendarPanel() {
   const { data, error } = usePolling(fetchCalendarEvents, 5 * 60 * 1000);
+  // ごみ収集日の取得失敗は予定の表示を妨げないよう、エラー表示せず単に出さない
+  const { data: garbage } = usePolling(fetchGarbage, 5 * 60 * 1000);
+
+  // ごみの日は日付のみなので、その日の0時として予定と時系列で並べる (同時刻なら先頭)
+  const rows = [
+    ...upcomingGarbageDays(garbage).map((day) => ({ key: `garbage-${day.date}`, start: day.start, day })),
+    ...(data ?? []).map((event) => ({ key: event.id, start: new Date(event.start), event })),
+  ].sort((a, b) => a.start - b.start);
 
   return (
     <div className="panel calendar-panel">
       <h2>予定</h2>
       {error && <p className="error">取得エラー: {error}</p>}
       {!data && !error && <p>読み込み中...</p>}
-      {data && data.length === 0 && <p className="muted">今月の予定はありません</p>}
-      {data && data.length > 0 && (
+      {data && rows.length === 0 && <p className="muted">今月の予定はありません</p>}
+      {rows.length > 0 && (
         <ul className="event-list">
-          {data.map((event) => (
-            <li key={event.id} className="event-item">
-              <span className="event-date-bar">{formatEventTime(event)}</span>
-              <span className="event-title-bar">{event.title}</span>
-            </li>
-          ))}
+          {rows.map((row) =>
+            row.day ? (
+              <GarbageRow key={row.key} day={row.day} deadline={garbage.deadline} />
+            ) : (
+              <li key={row.key} className="event-item">
+                <span className="event-date-bar">{formatEventTime(row.event)}</span>
+                <span className="event-title-bar">{row.event.title}</span>
+              </li>
+            )
+          )}
         </ul>
       )}
     </div>

@@ -20,3 +20,7 @@ services:
         sync: false
       - key: WEATHER_LON
         sync: false
+      - key: ICHINOMIYA_GOMI_RENKU
+        sync: false
+      - key: ICHINOMIYA_GOMI_AREA
+        sync: false

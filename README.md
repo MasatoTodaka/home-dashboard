@@ -20,6 +20,8 @@ home-dashboard/
 - 天気: [Open-Meteo](https://open-meteo.com/) — APIキー不要
 - SwitchBot: [SwitchBot OpenAPI v1.1](https://github.com/OpenWonderLabs/SwitchBotAPI) — トークン+シークレットでHMAC署名認証
 - カレンダー: Apple iCloud カレンダーをCalDAV経由で参照 (アプリ用パスワードを使用)
+- ごみ収集日: [一宮市公式サイトの地区別収集日ページ](https://www.city.ichinomiya.aichi.jp/kankyou/shuushuugyoumu/1043991/1043992/index.html)
+  から自動取得し、今日 (出す締切まで) と明日の分を予定欄に表示。年度が替わっても新しいページを自動で辿る
 
 ## 事前準備 (認証情報の取得)
 
@@ -36,6 +38,12 @@ home-dashboard/
 
 ### 自宅の緯度経度
 Googleマップで自宅を右クリックすると緯度・経度が表示されます。
+
+### ごみ収集日の地区 (一宮市)
+上記の一宮市公式サイトの「ごみ出しカレンダー」ページで、自宅の連区名 (例: `大和町連区`) を
+`ICHINOMIYA_GOMI_RENKU` に指定します。「町内回収資源」が地域で分かれている連区 (大和町連区の
+尾西線南側/北側など) は、同ページのPDFで自宅の町名がどちらに載っているかを確認し、
+`ICHINOMIYA_GOMI_AREA` にページ上の表記 (例: `尾西線北側`) を指定します。
 
 ## ローカルでの動作確認
 
@@ -71,6 +79,7 @@ npm run dev              # http://localhost:5173 (→ /api は自動的にbacken
    - `SWITCHBOT_TOKEN` / `SWITCHBOT_SECRET`
    - `ICLOUD_APPLE_ID` / `ICLOUD_APP_PASSWORD` / (任意) `ICLOUD_CALENDAR_NAMES`
    - `WEATHER_LAT` / `WEATHER_LON`
+   - `ICHINOMIYA_GOMI_RENKU` / (任意) `ICHINOMIYA_GOMI_AREA`
 4. デプロイ後に発行されるURL (`https://xxxx.onrender.com`) がダッシュボードのURL
 
 Render無料枠は一定時間アクセスがないとスリープし、次回アクセス時に再起動で
@@ -93,6 +102,19 @@ Fireタブレット標準のSilkブラウザではなく、Chrome または **Fu
 インストール後、起動時に表示するURLとしてデプロイ後のダッシュボードURLを設定し、
 Fully Kiosk Browserの「画面を常時オン」「キオスクモード」「自動リロード」などの
 設定を有効にすると、電源に挿しっぱなしで常時表示のダッシュボード端末になります。
+
+## 朝モード
+
+毎朝 6:00〜7:30 は、出かける前に確認したい情報を大きく並べた「朝モード」に自動で切り替わります。
+
+- **バイク判定**: 今日のこれから (7時〜21時) の1時間ごとの予報から「行ける / 注意 / やめておこう」を判定し、理由 (雨の時間帯・突風・凍結・猛暑) を表示
+- **今日の雨**: 1時間ごとの降水確率のグラフと、雨の可能性がある時間帯の要約
+- **ごみ出し**: 今日 (出す締切まで) か明日の収集品目
+- **今日の予定**
+
+右上の「通常表示へ」を押すと、その日は朝モードを出しません。表示時間帯やバイク判定のしきい値は
+`frontend/src/morning.js` の先頭で変更できます。URLに `?mode=morning` を付けると時刻に関係なく
+朝モードを表示できます (見た目の確認用)。
 
 ## 今後拡張したい場合のメモ
 

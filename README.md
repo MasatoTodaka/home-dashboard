@@ -1,17 +1,35 @@
 # ホームダッシュボード
 
-SwitchBotデバイスの状態、天気、Appleカレンダーの予定を1画面にまとめて表示する
+SwitchBotデバイスの状態、天気、Appleカレンダーの予定、ごみ収集日を1画面にまとめて表示する
 Webアプリ。Fireタブレット + Fully Kiosk Browser (または Chrome) でのキオスク表示を
 想定した、Echo Show 15 / SwitchBotスマートデイリーステーションのようなダッシュボード。
 
 ![ダッシュボード画面](docs/screenshot.png)
 
+*通常画面: 時計・天気・予定 (今日と明日のごみ収集日を含む)・SwitchBotデバイス*
+
+![朝モード画面](docs/screenshot-morning.png)
+
+*朝モード (毎朝 6:00〜7:30): バイクで出かけられるかの判定・1時間ごとの雨・今日のごみ出し・今日の予定*
+
+## 主な機能
+
+- **時計・天気**: 現在の天気と3日分の予報
+- **予定**: iCloud カレンダーの予定に加え、今日 (出す締切まで) と明日のごみ収集日を色分けして表示
+- **SwitchBotデバイス**: 状態表示とタップでの ON/OFF 操作
+- **朝モード**: 毎朝決まった時間だけ、出かける前に確認したい情報を大きく表示 ([詳細](#朝モード))
+- **画面の常時点灯と明るさの自動調整**: Chrome では画面が暗くならないように、Fully Kiosk Browser では
+  部屋の明るさに合わせて画面の明るさを変える ([詳細](#fireタブレットでの表示設定))
+- **Eufy体重計の記録**: 測定データを Google Sheets へ定期的に同期 ([詳細](#eufy体重計の測定データを-google-sheets-へ同期する))
+
 ## 構成
 
 ```
 home-dashboard/
-  backend/   Express製のAPIプロキシ。SwitchBot/iCloud/天気への認証情報はここだけに置く
-  frontend/  React (Vite) 製のダッシュボードUI。PWA対応
+  backend/            Express製のAPIプロキシ。SwitchBot/iCloud/Eufy/Google への認証情報はここだけに置く
+  frontend/           React (Vite) 製のダッシュボードUI。PWA対応
+  .github/workflows/  Renderのスリープ防止 (keepalive) と Eufy→Google Sheets 同期の定期実行
+  docs/               README用のスクリーンショット
 ```
 
 本番では `backend` が `frontend/dist` の静的ファイルも配信するため、デプロイ先は
@@ -81,6 +99,8 @@ npm run dev              # http://localhost:5173 (→ /api は自動的にbacken
    - `ICLOUD_APPLE_ID` / `ICLOUD_APP_PASSWORD` / (任意) `ICLOUD_CALENDAR_NAMES`
    - `WEATHER_LAT` / `WEATHER_LON`
    - `ICHINOMIYA_GOMI_RENKU` / (任意) `ICHINOMIYA_GOMI_AREA`
+   - (Eufy同期を使う場合) `EUFY_EMAIL` / `EUFY_PASSWORD` / `GOOGLE_SHEETS_SPREADSHEET_ID` /
+     `GOOGLE_SHEETS_SHEET_NAME` / `GOOGLE_SERVICE_ACCOUNT_EMAIL` / `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` / `SYNC_SECRET`
 4. デプロイ後に発行されるURL (`https://xxxx.onrender.com`) がダッシュボードのURL
 
 Render無料枠は一定時間アクセスがないとスリープし、次回アクセス時に再起動で
@@ -131,6 +151,26 @@ Android 5 対応の最終版 [1.59.2](https://www.fully-kiosk.com/files/2025/10/
 右上の「通常表示へ」を押すと、その日は朝モードを出しません。表示時間帯やバイク判定のしきい値は
 `frontend/src/morning.js` の先頭で変更できます。URLに `?mode=morning` を付けると時刻に関係なく
 朝モードを表示できます (見た目の確認用)。
+
+## Eufy体重計の測定データを Google Sheets へ同期する
+
+Eufy Smart Scale の測定履歴 (体重・体脂肪率・筋肉量・BMI など) を、Eufyの非公式クラウドAPIから取得して
+Google Sheets に追記します。GitHub Actions (`.github/workflows/eufy-sync.yml`) が15分ごとに
+`POST /api/eufy/sync` を呼び出し、シートに未記録の測定だけを追加します。
+
+1. Google Cloud でサービスアカウントを作成し、Google Sheets API を有効にして秘密鍵 (JSON) を発行する
+2. 書き込み先のスプレッドシートの共有設定に、サービスアカウントのメールアドレスを「編集者」として追加する
+3. Render の環境変数に `EUFY_*` / `GOOGLE_*` / `SYNC_SECRET` を設定する (値の書式は `backend/.env.example` を参照)
+4. GitHub リポジトリの Settings → Secrets and variables → Actions に、`SYNC_SECRET` と同じ値を
+   `EUFY_SYNC_SECRET` という名前で登録する
+
+体重計を使った人ごとの最新の測定値は `GET /api/eufy/weight` で取得できます (iOSショートカットから
+Apple ヘルスケアへ記録する用途を想定)。
+
+## 更新をデプロイしたあと
+
+ダッシュボードを開きっぱなしのタブレットでは、デプロイ後も古い版のプログラムが動き続けます。
+表示がおかしくなったら、ページの再読み込みかブラウザアプリの再起動をしてください。
 
 ## 今後拡張したい場合のメモ
 
